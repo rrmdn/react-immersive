@@ -1,8 +1,13 @@
 {
-  "name": "react-immer-hooks",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {},
+  "name": "react-immersive",
+  "version": "0.1.1",
+  "private": false,
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prepublishOnly": "yarn test && yarn build",
+    "postpublish": "rm -rf lib"
+  },
   "dependencies": {},
   "devDependencies": {
     "@testing-library/react-hooks": "^5.0.2",
