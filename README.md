@@ -7,3 +7,5 @@ Simple state management based on React Context and React Hooks.
 3. Use the hooks to access the state and actions.
 
 See src/index.spec.tsx on how to use it.
+
+Still in development mode, use with care.
