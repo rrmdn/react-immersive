@@ -1,6 +1,6 @@
-## react-immer-hooks
+## react-immersive
 
-Simple state management based on React Context and React Hooks.
+Simple state management for react on top of immer
 
 1. Define the state.
 2. Define actions that will modify the state (it uses immer, so mutate it all you want).

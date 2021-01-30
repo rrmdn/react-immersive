@@ -3,7 +3,11 @@
   "version": "0.2.2",
   "private": false,
   "main": "lib/index.js",
+  "description": "Simple state management for react on top of immer",
   "types": "lib/index.d.ts",
+  "repository": {
+    "url": "https://github.com/rrmdn/react-immersive"
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest",
