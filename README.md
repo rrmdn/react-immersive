@@ -23,8 +23,9 @@ npm install --save immer react-immersive
 ## Usage
 
 Pass your initial state as the first argument, followed by an actions creator on the second argument.
-An actions creator accepts a modifier function that lets you modify the initial state directly inside each of actions that you create -- which I like to call it `draftState`.
-Please head to (immer's documentation)[https://immerjs.github.io/immer/docs/introduction] if you haven't heard of it.
+An actions creator accepts a modifier function that lets you modify the state (I prefer to call it `draftState`) directly inside each of actions that you create.
+
+Please head to [immer's documentation](https://immerjs.github.io/immer/docs/introduction) if you haven't heard of it.
 
 ### Initialization
 
