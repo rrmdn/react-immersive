@@ -89,7 +89,7 @@ const SomeComponent = () => {
 import todo from "./todo";
 
 const OtherComponent = () => {
-  const firstTasks = todo.useSelectState((state) => state.tasks[0]);
+  const firstTask = todo.useSelectState((state) => state.tasks[0]);
   return <div></div>;
 };
 ```
