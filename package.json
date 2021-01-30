@@ -1,6 +1,6 @@
 {
   "name": "react-immersive",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": false,
   "main": "lib/index.js",
   "description": "Simple state management for react on top of immer",
