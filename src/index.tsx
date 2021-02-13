@@ -23,7 +23,9 @@ export function createContext<T, A extends Actions>(
 
   const useActions = () => {
     const { setState } = useContext();
-    const actions = createActions(setState);
+    const actions = React.useMemo(() => {
+      return createActions(setState);
+    }, [setState]);
     return actions;
   };
 
