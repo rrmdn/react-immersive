@@ -41,10 +41,14 @@ export function createContext<T, A extends Actions>(
     );
   };
 
+  const clone = (newInitialState: T) =>
+    createContext(newInitialState, createActions);
+
   return {
     useContext,
     useSelectState,
     useActions,
     Provider,
+    clone,
   };
 }
