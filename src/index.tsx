@@ -1,4 +1,3 @@
-import "requestidlecallback-polyfill";
 import React, { ReactNode } from "react";
 import { produce } from "immer";
 
@@ -25,13 +24,10 @@ export function createContext<T, A extends Actions>(
   ): R {
     const { state } = useContext();
     const selector = React.useCallback(select, dependencies);
-    const [selected, setSelected] = React.useState(selector(state));
-    React.useEffect(() => {
-      const request = window.requestIdleCallback(() => {
-        setSelected(selector(state));
-      });
-      return () => window.cancelIdleCallback(request);
+    const selected = React.useMemo(() => {
+      return selector(state);
     }, [state, selector]);
+
     return selected;
   }
 

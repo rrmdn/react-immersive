@@ -20,7 +20,7 @@ describe("immersive", () => {
       })
     );
 
-    const { result: ctx, waitForNextUpdate } = renderHook(
+    const { result: ctx } = renderHook(
       () => ({
         actions: context.useActions(),
         tasks: context.useSelectState((data) => data.tasks),
@@ -38,15 +38,11 @@ describe("immersive", () => {
       ctx.current.actions.addTask("New task");
     });
 
-    await waitForNextUpdate();
-
     expect(ctx.current.tasks.length).toBe(2);
 
     act(() => {
       ctx.current.actions.removeTask(0);
     });
-
-    await waitForNextUpdate();
 
     expect(ctx.current.tasks.length).toBe(1);
   });
