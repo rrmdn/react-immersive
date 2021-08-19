@@ -15,7 +15,9 @@
     "postpublish": "rm -rf lib"
   },
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "requestidlecallback-polyfill": "^1.0.2"
+  },
   "devDependencies": {
     "@testing-library/react-hooks": "^5.0.2",
     "@types/jest": "^26.0.20",

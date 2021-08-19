@@ -1,17 +1,13 @@
+import "requestidlecallback-polyfill";
 import React, { ReactNode } from "react";
 import { produce } from "immer";
 
 type Fn = (...args: any) => any;
 type Actions = { [key: string]: Fn };
 
-type Config = { selectDelay: number };
-
-const defaultConfig: Config = { selectDelay: 0 };
-
 export function createContext<T, A extends Actions>(
   initialState: T,
-  createActions: (modify: (modifier: (data: T) => void) => void) => A,
-  config: Config = defaultConfig
+  createActions: (modify: (modifier: (data: T) => void) => void) => A
 ) {
   const context = React.createContext({
     state: initialState,
@@ -25,16 +21,17 @@ export function createContext<T, A extends Actions>(
 
   function useSelectState<R>(
     select: (state: T) => R,
-    { selectDelay }: Config = config
+    dependencies: any[] = []
   ): R {
     const { state } = useContext();
-    const [selected, setSelected] = React.useState(select(state));
+    const selector = React.useCallback(select, dependencies);
+    const [selected, setSelected] = React.useState(selector(state));
     React.useEffect(() => {
-      const timeout = setTimeout(() => {
-        setSelected(select(state));
-      }, selectDelay);
-      return () => clearTimeout(timeout);
-    }, [state]);
+      const request = window.requestIdleCallback(() => {
+        setSelected(selector(state));
+      });
+      return () => window.cancelIdleCallback(request);
+    }, [state, selector]);
     return selected;
   }
 
