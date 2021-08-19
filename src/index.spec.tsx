@@ -3,7 +3,7 @@ import { renderHook, act } from "@testing-library/react-hooks";
 import { createContext } from ".";
 
 describe("immersive", () => {
-  it("should be able to create context", () => {
+  it("should be able to create context", async () => {
     const context = createContext(
       { tasks: [{ task: "hello", done: false }] },
       (modify) => ({
@@ -20,7 +20,7 @@ describe("immersive", () => {
       })
     );
 
-    const { result: ctx } = renderHook(
+    const { result: ctx, waitForNextUpdate } = renderHook(
       () => ({
         actions: context.useActions(),
         tasks: context.useSelectState((data) => data.tasks),
@@ -38,11 +38,15 @@ describe("immersive", () => {
       ctx.current.actions.addTask("New task");
     });
 
+    await waitForNextUpdate();
+
     expect(ctx.current.tasks.length).toBe(2);
 
     act(() => {
       ctx.current.actions.removeTask(0);
     });
+
+    await waitForNextUpdate();
 
     expect(ctx.current.tasks.length).toBe(1);
   });
