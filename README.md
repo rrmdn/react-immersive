@@ -98,7 +98,7 @@ const OtherComponent = () => {
 
 ### Using local updates
 
-This is an experimental feature that lets you prioritize the rendering of the closest component to the user input in order to improve the user-perceived performance of your large application. This feature relies on the presence of [window.requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback), therefore you need to add the [polyfill](https://github.com/pladaria/requestidlecallback-polyfill) in the beginning of your application entrypoint.
+This is an experimental feature that lets you prioritize the rendering of the closest component to the user input in order to improve the user-perceived performance of your large application. This feature relies on the presence of [window.requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback), therefore you need to add the [polyfill](https://github.com/pladaria/requestidlecallback-polyfill) at the beginning of your application entrypoint.
 
 ```jsx
 import todo from "./todo";
