@@ -104,7 +104,7 @@ This is an experimental feature that lets you prioritize the rendering of the cl
 import todo from "./todo";
 
 const SomeComponent = () => {
-  const localUpdates = todo.useLocalUpdates;
+  const localUpdates = todo.useLocalUpdates();
   const actions = localUpdates.useActions();
   const handleAddNewTask = () => {
     actions.addTask("Test");
