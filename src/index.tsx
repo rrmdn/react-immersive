@@ -1,3 +1,5 @@
+/// <reference path="../node_modules/requestidlecallback-polyfill/types/requestidlecallback.d.ts" />
+
 import React, { ReactNode } from "react";
 import { produce } from "immer";
 
@@ -10,7 +12,7 @@ export function createContext<T, A extends Actions>(
 ) {
   const context = React.createContext({
     state: initialState,
-    setState: (modifier: (data: T) => void) => {},
+    setState: (modifier: (state: { globalState: T }) => void) => {},
   });
 
   const useContext = () => {
@@ -34,18 +36,79 @@ export function createContext<T, A extends Actions>(
   const useActions = () => {
     const { setState } = useContext();
     const actions = React.useMemo(() => {
-      return createActions(setState);
+      const setGlobalState = (modifier: (data: T) => void) => {
+        setState((draft) => {
+          draft.globalState = produce(draft.globalState, modifier);
+        });
+      };
+      return createActions(setGlobalState);
     }, [setState]);
     return actions;
   };
 
-  const Provider = (props: { children: ReactNode }) => {
-    const [state, setState] = React.useState(initialState);
-    const setImmerState = React.useCallback((modifier: (data: T) => void) => {
-      setState((state) => produce(state, modifier));
+  const useLocalUpdates = () => {
+    const { state: globalState, setState: setGlobalState } = useContext();
+    const [localState, setLocalState] = React.useState({ state: globalState });
+    const modifyLocalState = React.useCallback(
+      (modifier: (data: T) => void) => {
+        setLocalState(({ state }) => ({ state: produce(state, modifier) }));
+      },
+      []
+    );
+
+    React.useEffect(
+      function updateLocalState() {
+        setLocalState({ state: globalState });
+      },
+      [globalState]
+    );
+
+    React.useEffect(
+      function sendUpdates() {
+        const request = window.requestIdleCallback(() => {
+          setGlobalState((draft) => {
+            draft.globalState = localState.state;
+          });
+        });
+        return () => window.cancelIdleCallback(request);
+      },
+      [localState]
+    );
+
+    const useLocalState = React.useCallback(
+      function <R>(select: (state: T) => R, dependencies: any[] = []): R {
+        const selector = React.useCallback(select, dependencies);
+        const selected = React.useMemo(() => {
+          return selector(localState.state);
+        }, [localState.state, selector]);
+
+        return selected;
+      },
+      [localState]
+    );
+
+    const useLocalActions = React.useCallback(() => {
+      const actions = React.useMemo(() => {
+        return createActions(modifyLocalState);
+      }, [modifyLocalState]);
+      return actions;
     }, []);
+
+    return { useLocalState, useLocalActions };
+  };
+
+  const Provider = (props: { children: ReactNode }) => {
+    const [{ globalState }, setState] = React.useState<{ globalState: T }>({
+      globalState: initialState,
+    });
+    const setImmerState = React.useCallback(
+      (modifier: (state: { globalState: T }) => void) => {
+        setState((state) => produce(state, modifier));
+      },
+      []
+    );
     return (
-      <context.Provider value={{ state, setState: setImmerState }}>
+      <context.Provider value={{ state: globalState, setState: setImmerState }}>
         {props.children}
       </context.Provider>
     );
@@ -60,5 +123,6 @@ export function createContext<T, A extends Actions>(
     useActions,
     Provider,
     clone,
+    useLocalUpdates,
   };
 }

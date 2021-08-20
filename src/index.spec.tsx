@@ -1,3 +1,4 @@
+import "requestidlecallback-polyfill";
 import React from "react";
 import { renderHook, act } from "@testing-library/react-hooks";
 import { createContext } from ".";
@@ -45,6 +46,65 @@ describe("immersive", () => {
     });
 
     expect(ctx.current.tasks.length).toBe(1);
+  });
+
+  it("should be able to run useLocalUpdates", async () => {
+    const context = createContext(
+      { tasks: [{ task: "hello", done: false }] },
+      (modify) => ({
+        addTask: (task: string) => {
+          modify((draft) => {
+            draft.tasks.push({ done: false, task });
+          });
+        },
+        removeTask: (index: number) => {
+          modify((draft) => {
+            draft.tasks.splice(index, 1);
+          });
+        },
+      })
+    );
+
+    const { result: ctx, waitForNextUpdate } = renderHook(
+      () => {
+        ({});
+        const localUpdates = context.useLocalUpdates();
+        return {
+          localState: localUpdates.useLocalState((data) => data),
+          localActions: localUpdates.useLocalActions(),
+          globalActions: context.useActions(),
+          globalState: context.useSelectState((data) => data),
+        };
+      },
+      {
+        wrapper: ({ children }) => (
+          <context.Provider>{children}</context.Provider>
+        ),
+      }
+    );
+
+    // commit local updates
+    act(() => {
+      ctx.current.localActions.addTask("New task from local actions");
+    });
+
+    // check the difference between local & global state
+    expect(ctx.current.localState.tasks.length).toEqual(2);
+    expect(ctx.current.globalState.tasks.length).toEqual(1);
+    expect(ctx.current.globalState).not.toEqual(ctx.current.localState);
+
+    // wait for local updates to be broadcasted
+    await waitForNextUpdate();
+    expect(ctx.current.globalState.tasks.length).toEqual(2);
+    expect(ctx.current.globalState).toEqual(ctx.current.localState);
+
+    // commit global updates
+    act(() => {
+      ctx.current.globalActions.addTask("New task from global actions");
+    });
+
+    // changes to global state must be available immediately
+    expect(ctx.current.globalState).toEqual(ctx.current.localState);
   });
 
   it("should be able to clone a context with a different initial state", () => {

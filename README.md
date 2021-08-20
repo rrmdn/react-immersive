@@ -5,6 +5,7 @@ Simple state management for react on top of immer
 1. Define the state.
 2. Define actions that will modify the state (it uses immer, so mutate it all you want).
 3. Use the hooks to access the state and actions.
+4. Use local updates to prioritize user input response.
 
 ## Installation
 
@@ -94,3 +95,29 @@ const OtherComponent = () => {
   return <div></div>;
 };
 ```
+
+### Using local updates
+
+This is an experimental feature that lets you prioritize the rendering of the closest component to the user input in order to improve the user-perceived performance of your large application. This feature relies on the presence of [window.requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback), therefore you need to add the [polyfill](https://github.com/pladaria/requestidlecallback-polyfill) at the beginning of your application entrypoint.
+
+```jsx
+import todo from "./todo";
+
+const SomeComponent = () => {
+  const localUpdates = todo.useLocalUpdates;
+  const actions = localUpdates.useActions();
+  const handleAddNewTask = () => {
+    actions.addTask("Test");
+  };
+
+  const handleRemoveTask = () => {
+    actions.removeTask(0);
+  };
+
+  const firstTask = localUpdates.useSelectState((state) => state.tasks[0]);
+
+  return <div></div>;
+};
+```
+
+In this example, `SomeComponent` will maintain a copy of the global state in `localUpdates`. Each changes that happen to `localUpdates` will be emitted to the global state after the `SomeComponent` completes re-rendering.
