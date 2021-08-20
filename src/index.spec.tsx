@@ -85,7 +85,7 @@ describe("immersive", () => {
 
     // commit local updates
     act(() => {
-      ctx.current.localActions.addTask("New task");
+      ctx.current.localActions.addTask("New task from local actions");
     });
 
     // check the difference between local & global state
@@ -96,6 +96,14 @@ describe("immersive", () => {
     // wait for local updates to be broadcasted
     await waitForNextUpdate();
     expect(ctx.current.globalState.tasks.length).toEqual(2);
+    expect(ctx.current.globalState).toEqual(ctx.current.localState);
+
+    // commit global updates
+    act(() => {
+      ctx.current.globalActions.addTask("New task from global actions");
+    });
+
+    // changes to global state must be available immediately
     expect(ctx.current.globalState).toEqual(ctx.current.localState);
   });
 
