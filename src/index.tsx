@@ -2,6 +2,11 @@
 
 import React, { ReactNode } from "react";
 import { produce } from "immer";
+import {
+  createContext as createContextSelectorContext,
+  useContext as useContextSelectorContext,
+  useContextSelector,
+} from "use-context-selector";
 
 type Fn = (...args: any) => any;
 type Actions = { [key: string]: Fn };
@@ -10,13 +15,13 @@ export function createContext<T, A extends Actions>(
   initialState: T,
   createActions: (modify: (modifier: (data: T) => void) => void) => A
 ) {
-  const context = React.createContext({
+  const context = createContextSelectorContext({
     state: initialState,
     setState: (modifier: (state: { globalState: T }) => void) => {},
   });
 
   const useContext = () => {
-    const ctx = React.useContext(context);
+    const ctx = useContextSelectorContext(context);
     return ctx;
   };
 
@@ -24,17 +29,11 @@ export function createContext<T, A extends Actions>(
     select: (state: T) => R,
     dependencies: any[] = []
   ): R {
-    const { state } = useContext();
-    const selector = React.useCallback(select, dependencies);
-    const selected = React.useMemo(() => {
-      return selector(state);
-    }, [state, selector]);
-
-    return selected;
+    return useContextSelector(context, ({ state }) => select(state));
   }
 
   const useActions = () => {
-    const { setState } = useContext();
+    const setState = useContextSelector(context, ({ setState }) => setState);
     const actions = React.useMemo(() => {
       const setGlobalState = (modifier: (data: T) => void) => {
         setState((draft) => {
