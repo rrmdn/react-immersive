@@ -64,11 +64,14 @@ export function createContext<T, A extends Actions>(
 
     React.useEffect(
       function sendUpdates() {
-        const request = window.requestIdleCallback(() => {
-          setGlobalState((draft) => {
-            draft.globalState = localState.state;
-          });
-        });
+        const request = window.requestIdleCallback(
+          () => {
+            setGlobalState((draft) => {
+              draft.globalState = localState.state;
+            });
+          },
+          { timeout: 100 }
+        );
         return () => window.cancelIdleCallback(request);
       },
       [localState]
